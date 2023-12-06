@@ -115,7 +115,7 @@ loop
 KW:=Round(abs(X2-X1)/12)
 TX:=Round(X1-KW/2)
 TY:=Round(SY-KW/2)
-KT:=1
+KT:=58
 KD:=""
 Hotkey, LWin, LWin
 loop
@@ -195,30 +195,41 @@ loop
   SoundPlay, Speech On.wav
   ; ToolTip %KT%
   
-  KD:=KeyWaitAny()
-  if (KD!="")
+  if (KT!=60) and (KT!=64)
   {
-    if (KT!=60) and (KT!=64)
+    KD:=KeyWaitAny()
+    if (KD!="") 
     {
-      ToolTip Win键和Fn键校准成功不会有提示音`n看到校准成功后直接摁下一个即可
+      ToolTip
       KeyWait, %KD%
-    }
-    ToolTip
-    KD:=""
-    KT:=KT+1
-    if (KT>68)
-    {
-      Hotkey, LWin, Off
-      break
+      KD:=""
     }
   }
+  else if (KT=60)
+  {
+    KeyWait, LWin, D
+    loop
+    {
+      if !GetKeyState("LWin", "P")
+      {
+        break
+      }
+    }
+  }
+  else if (KT=64)
+  {
+    ToolTip Fn键校准成功不会有提示音`n看到校准成功后直接摁下一个即可
+    Sleep 3000
+  }
+  
+  KT:=KT+1
+  if (KT>68)
+  {
+    Hotkey, LWin, Off
+    break
+  }
 }
-loop 90
-{
-  ToolTip 校准完成
-  Sleep 30
-}
-ToolTip
+MsgBox, 48, 黑钨重工68配列快捷校准, 校准完成, 5
 return
 
 LWin:
