@@ -18,7 +18,8 @@ Menu, Tray, NoStandard ;不显示默认的AHK右键菜单
 Menu, Tray, Add, 使用教程, 使用教程 ;添加新的右键菜单
 Menu, Tray, Add
 Menu, Tray, Add, 校准设置, 校准设置 ;添加新的右键菜单
-Menu, Tray, Add, 开始校准, 开始校准 ;添加新的右键菜单
+Menu, Tray, Add, 单排校准, 单排校准 ;添加新的右键菜单
+Menu, Tray, Add, 全部校准, 全部校准 ;添加新的右键菜单
 Menu, Tray, Add
 Menu, Tray, Add, 重启软件, 重启软件 ;添加新的右键菜单
 Menu, Tray, Add, 退出软件, 退出软件 ;添加新的右键菜单
@@ -97,7 +98,30 @@ TT:
 ToolTip 按下任意键开始校准
 return
 
-开始校准:
+单排校准:
+loop
+{
+  InputBox, KTLine, 黑钨重工68配列快捷校准, 请输入要单独校准第几排 一共有5排`n如果要校准第3排则输入数字3`n如果不是在1-5范围内会要求您重新输入, , , , , , Locale
+  if ErrorLevel
+  {
+    单排校准:=0
+    return
+  }
+  else
+  {
+    if (KTLine<1) or (KTLine>5)
+    {
+      continue
+    }
+    else
+    {
+      单排校准:=1
+      break
+    }
+  }
+}
+
+全部校准:
 WinActivate, ahk_exe REDRAGON Gaming Keyboard.exe
 KD:=""
 loop
@@ -115,7 +139,40 @@ loop
 KW:=Round(abs(X2-X1)/12)
 TX:=Round(X1-KW/2)
 TY:=Round(SY-KW/2)
-KT:=58
+
+if (单排校准=1)
+{
+  if (KTLine=1)
+  {
+    KT:=1
+    KTMAX:=15
+  }
+  else if (KTLine=2)
+  {
+    KT:=16
+    KTMAX:=30
+  }
+  else if (KTLine=3)
+  {
+    KT:=31
+    KTMAX:=44
+  }
+  else if (KTLine=4)
+  {
+    KT:=45
+    KTMAX:=58
+  }
+  else if (KTLine=5)
+  {
+    KT:=59
+    KTMAX:=68
+  }
+}
+else
+{
+  KT:=1
+}
+
 KD:=""
 Hotkey, LWin, LWin
 loop
@@ -200,7 +257,6 @@ loop
     KD:=KeyWaitAny()
     if (KD!="") 
     {
-      ToolTip
       KeyWait, %KD%
       KD:=""
     }
@@ -219,11 +275,22 @@ loop
   else if (KT=64)
   {
     ToolTip Fn键校准成功不会有提示音`n看到校准成功后直接摁下一个即可
-    Sleep 3000
+    Sleep 2000
+    ToolTip
   }
   
   KT:=KT+1
-  if (KT>68)
+  if (单排校准=1)
+  {
+    if (KT>KTMAX)
+    {
+      单排校准:=0
+      KTLine:=0
+      Hotkey, LWin, Off
+      break
+    }
+  }
+  else if (KT>68)
   {
     Hotkey, LWin, Off
     break
